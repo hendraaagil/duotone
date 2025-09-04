@@ -14,3 +14,5 @@ export const DEFAULT_ADJUSTMENTS = {
 	customColor1: '#1B602F',
 	customColor2: '#F784C5',
 }
+
+export const IMAGE_EXTENSION_REGEX = /\.(png|jpe?g|gif|webp)$/i

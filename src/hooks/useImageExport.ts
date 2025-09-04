@@ -1,9 +1,10 @@
 import { useCallback } from 'react'
+import { DUOTONE_COLORS, IMAGE_EXTENSION_REGEX } from '@/constants'
+
 import type { ImageAdjustments } from './useImageAdjustments'
-import { DUOTONE_COLORS } from '@/constants'
 
 export const useImageExport = (
-	originalImageRef: React.MutableRefObject<HTMLImageElement | null>,
+	originalImageRef: React.RefObject<HTMLImageElement | null>,
 	originalFilename: string,
 	adjustments: ImageAdjustments,
 ) => {
@@ -91,19 +92,51 @@ export const useImageExport = (
 
 		tempCtx.putImageData(fullSizeImageData, 0, 0)
 
-		tempCanvas.toBlob((blob) => {
-			if (blob) {
-				const url = URL.createObjectURL(blob)
-				const a = document.createElement('a')
-				a.href = url
-				const baseFilename = originalFilename
-					? originalFilename.replace(/\.(png|jpe?g|svg|gif)$/i, '')
-					: 'edited-image'
-				a.download = `${baseFilename}-duotone.png`
-				a.click()
-				URL.revokeObjectURL(url)
+		const getFileExtension = (filename: string): string => {
+			const match = filename.match(IMAGE_EXTENSION_REGEX)
+			return match ? match[1].toLowerCase() : 'png'
+		}
+
+		const getMimeType = (extension: string): string => {
+			switch (extension) {
+				case 'jpg':
+				case 'jpeg':
+					return 'image/jpeg'
+				case 'gif':
+					return 'image/gif'
+				case 'webp':
+					return 'image/webp'
+				default:
+					return 'image/png'
 			}
-		})
+		}
+
+		const originalExtension = originalFilename
+			? getFileExtension(originalFilename)
+			: 'png'
+		const mimeType = getMimeType(originalExtension)
+		const quality =
+			originalExtension === 'jpg' || originalExtension === 'jpeg'
+				? 0.95
+				: undefined
+
+		tempCanvas.toBlob(
+			(blob) => {
+				if (blob) {
+					const url = URL.createObjectURL(blob)
+					const a = document.createElement('a')
+					a.href = url
+					const baseFilename = originalFilename
+						? originalFilename.replace(IMAGE_EXTENSION_REGEX, '')
+						: 'edited-image'
+					a.download = `${baseFilename}-duotone.${originalExtension}`
+					a.click()
+					URL.revokeObjectURL(url)
+				}
+			},
+			mimeType,
+			quality,
+		)
 	}, [originalImageRef, originalFilename, adjustments])
 
 	return {

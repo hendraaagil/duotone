@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import { IMAGE_EXTENSION_REGEX } from '@/constants'
 
 export const useImageUpload = () => {
 	const [image, setImage] = useState<HTMLImageElement | null>(null)
@@ -30,7 +31,7 @@ export const useImageUpload = () => {
 
 	const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
-		if (file) {
+		if (file && IMAGE_EXTENSION_REGEX.test(file.name)) {
 			loadImage(file)
 		}
 	}
@@ -56,7 +57,7 @@ export const useImageUpload = () => {
 			const files = e.dataTransfer.files
 			if (files.length > 0) {
 				const file = files[0]
-				if (file.type.startsWith('image/')) {
+				if (IMAGE_EXTENSION_REGEX.test(file.name)) {
 					loadImage(file)
 				}
 			}

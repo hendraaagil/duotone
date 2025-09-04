@@ -1,6 +1,7 @@
 import { useRef, useCallback, useEffect } from 'react'
-import type { ImageAdjustments } from './useImageAdjustments'
 import { DUOTONE_COLORS } from '@/constants'
+
+import type { ImageAdjustments } from './useImageAdjustments'
 
 export const useCanvasProcessor = (
 	image: HTMLImageElement | null,
