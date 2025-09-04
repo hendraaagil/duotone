@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import toast from 'react-hot-toast'
 import { IMAGE_EXTENSION_REGEX } from '@/constants'
 
 export const useImageUpload = () => {
@@ -31,9 +32,13 @@ export const useImageUpload = () => {
 
 	const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
-		if (file && IMAGE_EXTENSION_REGEX.test(file.name)) {
-			loadImage(file)
+		if (!file) return
+		if (!IMAGE_EXTENSION_REGEX.test(file.name)) {
+			toast.error('Please upload a valid image file (PNG, JPEG, GIF, or WebP)')
+			return
 		}
+
+		loadImage(file)
 	}
 
 	const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -55,12 +60,17 @@ export const useImageUpload = () => {
 			setIsDragOver(false)
 
 			const files = e.dataTransfer.files
-			if (files.length > 0) {
-				const file = files[0]
-				if (IMAGE_EXTENSION_REGEX.test(file.name)) {
-					loadImage(file)
-				}
+			if (files.length === 0) return
+
+			const file = files[0]
+			if (!IMAGE_EXTENSION_REGEX.test(file.name)) {
+				toast.error(
+					'Please upload a valid image file (PNG, JPEG, GIF, or WebP)',
+				)
+				return
 			}
+
+			loadImage(file)
 		},
 		[loadImage],
 	)

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
+import { Toaster } from 'react-hot-toast'
+
 import './globals.css'
 import { Footer } from '@/components/ui/footer'
 
@@ -26,6 +28,7 @@ export default function RootLayout({
 				className={`${geistSans.variable} font-sans antialiased`}
 				suppressHydrationWarning
 			>
+				<Toaster />
 				<div className="flex min-h-screen flex-col">
 					<main className="flex-1">{children}</main>
 					<Footer />
