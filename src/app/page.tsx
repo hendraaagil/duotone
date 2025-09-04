@@ -77,9 +77,9 @@ export default function ImageEditor() {
 						onDrop={handleDrop}
 					>
 						<Upload className="mx-auto mb-4 h-12 w-12 text-slate-950" />
-						<h3 className="mb-2 text-lg font-semibold">
+						<h2 className="mb-2 text-lg font-semibold">
 							{isDragOver ? 'Drop your image here' : 'Upload an Image'}
-						</h3>
+						</h2>
 						<p className="mb-4 text-slate-950">
 							{isDragOver
 								? 'Release to upload'
