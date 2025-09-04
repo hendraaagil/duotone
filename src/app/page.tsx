@@ -1,103 +1,357 @@
-import Image from 'next/image'
+'use client'
 
-export default function Home() {
+import type React from 'react'
+
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
+import {
+	Upload,
+	Download,
+	RotateCcw,
+	Palette,
+	Sun,
+	Contrast,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import {
+	useImageUpload,
+	useImageAdjustments,
+	useCanvasProcessor,
+	useImageExport,
+	duotoneColors,
+} from '@/hooks'
+
+export default function ImageEditor() {
+	const {
+		image,
+		originalFilename,
+		isDragOver,
+		fileInputRef,
+		originalImageRef,
+		handleFileUpload,
+		handleDragOver,
+		handleDragLeave,
+		handleDrop,
+		resetImage,
+	} = useImageUpload()
+
+	const {
+		adjustments,
+		setAdjustments,
+		resetAdjustments,
+		getCurrentDuotoneColors,
+	} = useImageAdjustments()
+
+	const { canvasRef, resetCanvas } = useCanvasProcessor(image, adjustments)
+	const { handleSave } = useImageExport(
+		originalImageRef,
+		originalFilename,
+		adjustments,
+	)
+
+	const handleNewImage = () => {
+		resetImage()
+		resetCanvas()
+		resetAdjustments()
+		fileInputRef.current?.click()
+	}
+
 	return (
-		<div className="grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-sans sm:p-20">
-			<main className="row-start-2 flex flex-col items-center gap-[32px] sm:items-start">
-				<Image
-					className="dark:invert"
-					src="/next.svg"
-					alt="Next.js logo"
-					width={180}
-					height={38}
-					priority
-				/>
-				<ol className="list-inside list-decimal text-center font-mono text-sm/6 sm:text-left">
-					<li className="mb-2 tracking-[-.01em]">
-						Get started by editing{' '}
-						<code className="rounded bg-black/[.05] px-1 py-0.5 font-mono font-semibold dark:bg-white/[.06]">
-							src/app/page.tsx
-						</code>
-						.
-					</li>
-					<li className="tracking-[-.01em]">
-						Save and see your changes instantly.
-					</li>
-				</ol>
-
-				<div className="flex flex-col items-center gap-4 sm:flex-row">
-					<a
-						className="flex h-10 items-center justify-center gap-2 rounded-full border border-solid border-transparent bg-foreground px-4 text-sm font-medium text-background transition-colors hover:bg-[#383838] sm:h-12 sm:w-auto sm:px-5 sm:text-base dark:hover:bg-[#ccc]"
-						href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<Image
-							className="dark:invert"
-							src="/vercel.svg"
-							alt="Vercel logomark"
-							width={20}
-							height={20}
-						/>
-						Deploy now
-					</a>
-					<a
-						className="flex h-10 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-4 text-sm font-medium transition-colors hover:border-transparent hover:bg-[#f2f2f2] sm:h-12 sm:w-auto sm:px-5 sm:text-base md:w-[158px] dark:border-white/[.145] dark:hover:bg-[#1a1a1a]"
-						href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Read our docs
-					</a>
+		<div className="flex min-h-screen items-center justify-center bg-background p-4">
+			<div className="mx-auto w-full max-w-6xl space-y-6">
+				<div className="space-y-2 text-center">
+					<h1 className="text-3xl font-bold text-foreground">Duotone Editor</h1>
+					<p className="text-slate-600">
+						Upload an image and apply duotone filters with brightness and
+						contrast adjustments
+					</p>
 				</div>
-			</main>
-			<footer className="row-start-3 flex flex-wrap items-center justify-center gap-[24px]">
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image
-						aria-hidden
-						src="/file.svg"
-						alt="File icon"
-						width={16}
-						height={16}
-					/>
-					Learn
-				</a>
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image
-						aria-hidden
-						src="/window.svg"
-						alt="Window icon"
-						width={16}
-						height={16}
-					/>
-					Examples
-				</a>
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image
-						aria-hidden
-						src="/globe.svg"
-						alt="Globe icon"
-						width={16}
-						height={16}
-					/>
-					Go to nextjs.org →
-				</a>
-			</footer>
+
+				{!image && (
+					<Card
+						className={cn(
+							'border-2 border-dashed p-8 text-center transition-colors',
+							isDragOver ? 'border-accent bg-accent/10' : 'border-border',
+						)}
+						onDragOver={handleDragOver}
+						onDragLeave={handleDragLeave}
+						onDrop={handleDrop}
+					>
+						<Upload className="mx-auto mb-4 h-12 w-12 text-slate-950" />
+						<h3 className="mb-2 text-lg font-semibold">
+							{isDragOver ? 'Drop your image here' : 'Upload an Image'}
+						</h3>
+						<p className="mb-4 text-slate-950">
+							{isDragOver
+								? 'Release to upload'
+								: 'Drag and drop an image file or click to select'}
+						</p>
+						<Button
+							onClick={() => fileInputRef.current?.click()}
+							className="bg-accent hover:bg-accent/90"
+						>
+							Select Image
+						</Button>
+					</Card>
+				)}
+
+				{image && (
+					<div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+						<div className="space-y-4 lg:col-span-2">
+							<Card className="p-4">
+								<div className="mb-4 flex items-center justify-between">
+									<h3 className="text-lg font-semibold">Preview</h3>
+									<div className="flex gap-2">
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={handleNewImage}
+										>
+											<Upload className="mr-2 h-4 w-4" />
+											New Image
+										</Button>
+										<Button
+											onClick={handleSave}
+											className="bg-accent hover:bg-accent/90"
+											size="sm"
+										>
+											<Download className="mr-2 h-4 w-4" />
+											Save
+										</Button>
+									</div>
+								</div>
+								<div className="flex justify-center rounded-lg bg-card p-4">
+									<canvas
+										ref={canvasRef}
+										className="h-auto max-w-full rounded border border-border"
+									/>
+								</div>
+							</Card>
+						</div>
+
+						<div className="space-y-4">
+							<Card className="gap-4 p-4">
+								<div className="flex items-center gap-2">
+									<Palette className="h-5 w-5 text-accent" />
+									<h3 className="font-semibold">Filters</h3>
+								</div>
+								<div className="grid grid-cols-2 gap-2">
+									{duotoneColors.map((filter) => (
+										<Button
+											key={filter.name}
+											variant={
+												adjustments.duotone === filter.name
+													? 'default'
+													: 'outline'
+											}
+											size="sm"
+											onClick={() =>
+												setAdjustments((prev) => ({
+													...prev,
+													duotone: filter.name,
+												}))
+											}
+											className={cn(
+												'h-auto p-2 text-xs',
+												adjustments.duotone === filter.name &&
+													'bg-accent hover:bg-accent/90',
+											)}
+										>
+											<div className="space-y-1">
+												<div className="text-xs font-medium">{filter.name}</div>
+												{filter.colors && (
+													<div className="flex gap-1">
+														{filter.colors.map((color, idx) => (
+															<div
+																key={idx}
+																className="h-3 w-3 rounded-full border border-border"
+																style={{ backgroundColor: color }}
+															/>
+														))}
+													</div>
+												)}
+												{filter.name === 'Custom' && (
+													<div className="flex gap-1">
+														<div
+															className="h-3 w-3 rounded-full border border-border"
+															style={{
+																backgroundColor: adjustments.customColor1,
+															}}
+														/>
+														<div
+															className="h-3 w-3 rounded-full border border-border"
+															style={{
+																backgroundColor: adjustments.customColor2,
+															}}
+														/>
+													</div>
+												)}
+											</div>
+										</Button>
+									))}
+								</div>
+
+								{adjustments.duotone !== 'Original' &&
+									getCurrentDuotoneColors() && (
+										<div className="rounded-lg bg-slate-200 p-3">
+											<div className="mb-2 text-sm font-medium">
+												Selected Colors:
+											</div>
+											<div className="space-y-2">
+												{getCurrentDuotoneColors()!.map((color, idx) => (
+													<div key={idx} className="flex items-center gap-2">
+														<input
+															type="color"
+															value={
+																adjustments.invertDuotone
+																	? getCurrentDuotoneColors()![1 - idx]
+																	: color
+															}
+															readOnly={adjustments.duotone !== 'Custom'}
+															className={cn(
+																'h-6 w-6 rounded border border-border',
+																adjustments.duotone !== 'Custom'
+																	? 'cursor-not-allowed opacity-75'
+																	: 'cursor-pointer',
+															)}
+															onChange={(e) => {
+																if (adjustments.duotone === 'Custom') {
+																	const newColor = e.target.value
+																	if (idx === 0) {
+																		setAdjustments((prev) => ({
+																			...prev,
+																			customColor1: adjustments.invertDuotone
+																				? newColor
+																				: newColor,
+																			customColor2: adjustments.invertDuotone
+																				? prev.customColor1
+																				: prev.customColor2,
+																		}))
+																	} else {
+																		setAdjustments((prev) => ({
+																			...prev,
+																			customColor1: adjustments.invertDuotone
+																				? prev.customColor2
+																				: prev.customColor1,
+																			customColor2: adjustments.invertDuotone
+																				? newColor
+																				: newColor,
+																		}))
+																	}
+																}
+															}}
+														/>
+														<input
+															type="text"
+															value={(adjustments.invertDuotone
+																? getCurrentDuotoneColors()![1 - idx]
+																: color
+															).toUpperCase()}
+															readOnly={adjustments.duotone !== 'Custom'}
+															className={cn(
+																'flex-1 rounded border border-border px-2 py-1 font-mono text-xs',
+																adjustments.duotone !== 'Custom'
+																	? 'cursor-not-allowed bg-slate-400'
+																	: 'cursor-text bg-background',
+															)}
+															onChange={(e) => {
+																if (adjustments.duotone === 'Custom') {
+																	const newColor = e.target.value
+																	if (idx === 0) {
+																		setAdjustments((prev) => ({
+																			...prev,
+																			customColor1: adjustments.invertDuotone
+																				? newColor
+																				: newColor,
+																			customColor2: adjustments.invertDuotone
+																				? prev.customColor1
+																				: prev.customColor2,
+																		}))
+																	} else {
+																		setAdjustments((prev) => ({
+																			...prev,
+																			customColor1: adjustments.invertDuotone
+																				? prev.customColor2
+																				: prev.customColor1,
+																			customColor2: adjustments.invertDuotone
+																				? newColor
+																				: newColor,
+																		}))
+																	}
+																}
+															}}
+														/>
+													</div>
+												))}
+											</div>
+										</div>
+									)}
+							</Card>
+
+							<Card className="gap-4 p-4">
+								<div className="flex items-center gap-2">
+									<Sun className="h-5 w-5 text-accent" />
+									<h3 className="font-semibold">Brightness</h3>
+									<span className="ml-auto text-sm font-semibold text-slate-950">
+										{adjustments.brightness}%
+									</span>
+								</div>
+								<Slider
+									value={[adjustments.brightness]}
+									onValueChange={(value) =>
+										setAdjustments((prev) => ({
+											...prev,
+											brightness: value[0],
+										}))
+									}
+									min={0}
+									max={200}
+									step={1}
+									className="my-2 w-full"
+								/>
+							</Card>
+
+							<Card className="gap-4 p-4">
+								<div className="flex items-center gap-2">
+									<Contrast className="h-5 w-5 text-accent" />
+									<h3 className="font-semibold">Contrast</h3>
+									<span className="ml-auto text-sm font-semibold text-slate-950">
+										{adjustments.contrast}%
+									</span>
+								</div>
+								<Slider
+									value={[adjustments.contrast]}
+									onValueChange={(value) =>
+										setAdjustments((prev) => ({ ...prev, contrast: value[0] }))
+									}
+									min={0}
+									max={200}
+									step={1}
+									className="my-2 w-full"
+								/>
+							</Card>
+
+							<Button
+								variant="outline"
+								onClick={resetAdjustments}
+								className="w-full bg-transparent"
+							>
+								<RotateCcw className="mr-2 h-4 w-4" />
+								Reset All
+							</Button>
+						</div>
+					</div>
+				)}
+
+				<input
+					ref={fileInputRef}
+					type="file"
+					accept="image/*"
+					onChange={handleFileUpload}
+					className="hidden"
+				/>
+			</div>
 		</div>
 	)
 }
