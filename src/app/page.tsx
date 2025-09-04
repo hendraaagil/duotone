@@ -210,7 +210,7 @@ export default function ImageEditor() {
 															className={cn(
 																'h-6 w-6 rounded border border-border',
 																adjustments.duotone !== 'Custom'
-																	? 'cursor-not-allowed opacity-75'
+																	? 'pointer-events-none opacity-75'
 																	: 'cursor-pointer',
 															)}
 															onChange={(e) => {
