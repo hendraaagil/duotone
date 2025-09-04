@@ -61,11 +61,9 @@ export default function ImageEditor() {
 		<div className="flex min-h-screen items-center justify-center bg-background p-4">
 			<div className="mx-auto w-full max-w-6xl space-y-6">
 				<div className="space-y-2 text-center">
-					<h1 className="text-3xl font-bold text-foreground">Duotone Editor</h1>
-					<p className="text-slate-600">
-						Upload an image and apply duotone filters with brightness and
-						contrast adjustments
-					</p>
+					<h1 className="text-3xl font-bold text-foreground">
+						Duotone Filters
+					</h1>
 				</div>
 
 				{!image && (

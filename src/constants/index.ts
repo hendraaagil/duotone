@@ -1,8 +1,8 @@
 export const DUOTONE_COLORS = [
 	{ name: 'Original', colors: null },
-	{ name: 'Green Pink', colors: ['#1b602f', '#e44c9a'] },
-	{ name: 'Blue Pink', colors: ['#0f0e85', '#e44c9a'] },
-	{ name: 'Blue Green', colors: ['#0f0e85', '#1b602f'] },
+	{ name: 'Green Pink', colors: ['#1B602F', '#F784C5'] },
+	{ name: 'Blue Pink', colors: ['#000072', '#F784C5'] },
+	{ name: 'Blue Green', colors: ['#000072', '#1B602F'] },
 	{ name: 'Custom', colors: null },
 ]
 
@@ -11,6 +11,6 @@ export const DEFAULT_ADJUSTMENTS = {
 	contrast: 100,
 	duotone: 'Original',
 	invertDuotone: false,
-	customColor1: '#0f0e85',
-	customColor2: '#e44c9a',
+	customColor1: '#1B602F',
+	customColor2: '#F784C5',
 }
