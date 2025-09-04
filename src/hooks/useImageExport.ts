@@ -8,7 +8,7 @@ export const useImageExport = (
 	originalFilename: string,
 	adjustments: ImageAdjustments,
 ) => {
-	const hexToRgb = (hex: string) => {
+	const hexToRgb = useCallback((hex: string) => {
 		const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
 		return result
 			? {
@@ -17,28 +17,27 @@ export const useImageExport = (
 					b: Number.parseInt(result[3], 16),
 				}
 			: { r: 0, g: 0, b: 0 }
-	}
+	}, [])
 
-	const applyDuotone = (
-		imageData: ImageData,
-		colors: string[],
-		invert = false,
-	) => {
-		const data = imageData.data
-		const color1 = hexToRgb(invert ? colors[1] : colors[0])
-		const color2 = hexToRgb(invert ? colors[0] : colors[1])
+	const applyDuotone = useCallback(
+		(imageData: ImageData, colors: string[], invert = false) => {
+			const data = imageData.data
+			const color1 = hexToRgb(invert ? colors[1] : colors[0])
+			const color2 = hexToRgb(invert ? colors[0] : colors[1])
 
-		for (let i = 0; i < data.length; i += 4) {
-			const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114
-			const normalizedGray = gray / 255
+			for (let i = 0; i < data.length; i += 4) {
+				const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114
+				const normalizedGray = gray / 255
 
-			data[i] = color1.r + (color2.r - color1.r) * normalizedGray
-			data[i + 1] = color1.g + (color2.g - color1.g) * normalizedGray
-			data[i + 2] = color1.b + (color2.b - color1.b) * normalizedGray
-		}
+				data[i] = color1.r + (color2.r - color1.r) * normalizedGray
+				data[i + 1] = color1.g + (color2.g - color1.g) * normalizedGray
+				data[i + 2] = color1.b + (color2.b - color1.b) * normalizedGray
+			}
 
-		return imageData
-	}
+			return imageData
+		},
+		[hexToRgb],
+	)
 
 	const handleSave = useCallback(() => {
 		const originalImg = originalImageRef.current
@@ -137,7 +136,7 @@ export const useImageExport = (
 			mimeType,
 			quality,
 		)
-	}, [originalImageRef, originalFilename, adjustments])
+	}, [originalImageRef, originalFilename, adjustments, applyDuotone])
 
 	return {
 		handleSave,

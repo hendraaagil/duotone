@@ -1,0 +1,9 @@
+onlyBuiltDependencies:
+  - '@tailwindcss/oxide'
+  - esbuild
+  - sharp
+  - unrs-resolver
+  - workerd
+publicHoistPattern:
+  - '@next/eslint-plugin-next'
+  - eslint-plugin-react-hooks

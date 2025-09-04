@@ -143,7 +143,7 @@ export const useCanvasProcessor = (
 		if (image && originalImageData.current) {
 			applyAdjustments()
 		}
-	}, [adjustments, applyAdjustments])
+	}, [adjustments, applyAdjustments, image])
 
 	return {
 		canvasRef,
